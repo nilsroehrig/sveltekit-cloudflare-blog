@@ -1,25 +1,7 @@
 import type { KVNamespace } from '@miniflare/kv';
-import { z } from 'zod';
 import { PostNotFoundError } from './errors/PostNotFoundError';
-
-const ProspectivePost = z.object({
-	title: z.string(),
-	content: z.string(),
-	published: z.preprocess(
-		(value) => (value instanceof Date ? value : new Date(String(value))),
-		z.date()
-	),
-	author: z.string()
-});
-
-type ProspectivePost = z.infer<typeof ProspectivePost>;
-
-const Post = ProspectivePost.extend({
-	id: z.string(),
-	excerpt: z.string()
-});
-
-type Post = z.infer<typeof Post>;
+import { ProspectivePost, Post } from '../domain/ProspectivePost';
+import postsDb from './dev/posts.db';
 
 export interface PostService {
 	create(prospectivePost: ProspectivePost): Promise<Post>;
@@ -89,7 +71,7 @@ class ProductionPostService implements PostService {
 
 class DevelopmentPostService implements PostService {
 	#posts: Post[];
-	constructor(posts: Post[] = []) {
+	constructor(posts: Post[] = postsDb) {
 		this.#posts = posts;
 	}
 	get(id: string): Promise<Post> {
@@ -122,9 +104,9 @@ class DevelopmentPostService implements PostService {
 	}
 }
 
-export function createPostService(platform: App.Platform): PostService {
-	if (platform.env.BLOG_POSTS) {
-		return new ProductionPostService(platform.env.BLOG_POSTS);
+export function createPostService(platform?: App.Platform): PostService {
+	if (platform?.env.BLOG_POSTS) {
+		return new ProductionPostService(platform?.env.BLOG_POSTS);
 	} else {
 		return new DevelopmentPostService();
 	}
