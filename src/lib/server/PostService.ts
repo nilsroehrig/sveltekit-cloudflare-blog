@@ -1,6 +1,6 @@
 import type { KVNamespace } from '@miniflare/kv';
 import { PostNotFoundError } from './errors/PostNotFoundError';
-import { ProspectivePost, Post } from '../domain/ProspectivePost';
+import { ProspectivePost, Post } from '../domain/Post';
 
 let postsDb = new Array<Post>();
 
@@ -66,7 +66,7 @@ class ProductionPostService implements PostService {
 				acc.push(parseResult.data);
 			}
 			return acc;
-		}, new Array<Post>());
+		}, new Array<Post>()).sort(byPublishedDesc);
 	}
 }
 
@@ -97,7 +97,7 @@ class DevelopmentPostService implements PostService {
 		return maybeFoundPost;
 	}
 	list(): Promise<Post[]> {
-		return Promise.resolve(postsDb);
+		return Promise.resolve(postsDb.sort(byPublishedDesc));
 	}
 }
 
@@ -107,4 +107,8 @@ export function createPostService(platform?: App.Platform): PostService {
 	} else {
 		return new DevelopmentPostService();
 	}
+}
+
+function byPublishedDesc(a: Post, b: Post) {
+	return b.published.valueOf() - a.published.valueOf();
 }

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Post } from '$lib/domain/ProspectivePost';
+	import type { Post } from '$lib/domain/Post';
 
 	export let post: Post | undefined = undefined;
 	$: hasPost = post != undefined;

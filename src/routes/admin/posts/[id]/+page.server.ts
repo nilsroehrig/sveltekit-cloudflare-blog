@@ -1,4 +1,4 @@
-import { ProspectivePost } from '$lib/domain/ProspectivePost.js';
+import { ProspectivePost } from '$lib/domain/Post.js';
 import { createPostService } from '$lib/server/PostService.js';
 import { fail, redirect } from '@sveltejs/kit';
 

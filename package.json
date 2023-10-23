@@ -12,7 +12,6 @@
 		"format": "prettier --plugin-search-dir . --write ."
 	},
 	"devDependencies": {
-		"@cloudflare/types": "^6.23.6",
 		"@sveltejs/adapter-auto": "^2.0.0",
 		"@sveltejs/adapter-cloudflare": "^2.3.3",
 		"@sveltejs/kit": "^1.20.4",
@@ -35,8 +34,6 @@
 	"dependencies": {
 		"@auth/core": "^0.17.0",
 		"@auth/sveltekit": "^0.3.10",
-		"@editorjs/editorjs": "^2.28.2",
-		"@editorjs/header": "^2.7.0",
 		"@miniflare/kv": "^2.14.1",
 		"@picocss/pico": "^1.5.10",
 		"zod": "^3.22.4"

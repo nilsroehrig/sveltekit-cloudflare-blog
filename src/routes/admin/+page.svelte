@@ -11,7 +11,7 @@
 
 	<ol>
 		{#each posts as post (post.id)}
-			<li><a href="/admin/posts/{post.id}">{post.title}</a></li>
+			<li><a href="/admin/posts/{post.id}">{post.title}</a> <small>– published at {post.published.toLocaleString("en-UK")}</small></li>
 		{:else}
 			<li class="unstyled">No posts yet.</li>
 		{/each}
@@ -25,12 +25,18 @@
         align-items: baseline;
     }
 
+    header a {
+        font-size: 85%;
+        --form-element-spacing-vertical: .5rem;
+        --form-element-spacing-horizontal: .75rem;
+    }
+
     ol {
         padding: 0;
     }
 
-    .unstyled {
-        list-style: none;
+    li {
         padding: 0;
+        list-style: none;
     }
 </style>
