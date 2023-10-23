@@ -1,37 +1,42 @@
-/* import GitHub from '@auth/core/providers/github';
-import { SvelteKitAuth } from '@auth/sveltekit';
-import { error, redirect, type Handle } from '@sveltejs/kit';
+import { ALLOWED_USERS, AUTH_SECRET, GITHUB_ID, GITHUB_SECRET } from '$env/static/private';
+import GitHub from '@auth/core/providers/github';
+import { SvelteKitAuth, type SvelteKitAuthConfig } from '@auth/sveltekit';
+import { redirect, type Handle } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 
 const authorization: Handle = async ({ event, resolve }) => {
-	// Protect any routes under /authenticated
 	if (event.url.pathname.startsWith('/admin')) {
 		const session = await event.locals.getSession();
 		if (!session) {
 			throw redirect(303, '/login');
 		}
-		if (!event.platform?.env.ALLOWED_USERS.split(',').includes(String(session.user?.email))) {
-			throw error(403);
-		}
 	}
 
-	// If the request is still here, just proceed as normally
 	return resolve(event);
 };
 
 export const handle: Handle = sequence(
 	SvelteKitAuth(async (event) => {
-		const authOptions = {
+		const authOptions: SvelteKitAuthConfig = {
 			providers: [
 				GitHub({
-					clientId: event.platform?.env.GITHUB_ID,
-					clientSecret: event.platform?.env.GITHUB_SECRET
+					clientId: GITHUB_ID,
+					clientSecret: GITHUB_SECRET
 				})
 			],
-			secret: event.platform?.env.AUTH_SECRET,
-			trustHost: true
+			secret: AUTH_SECRET,
+			trustHost: true,
+			callbacks: {
+				signIn({ profile }) {
+					if (!profile?.email) {
+						return Promise.resolve(false);
+					}
+
+					return Promise.resolve(ALLOWED_USERS.includes(String(profile?.email)));
+				}
+			}
 		};
 		return authOptions;
 	}),
 	authorization
-); */
+);
