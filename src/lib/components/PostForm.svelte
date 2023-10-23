@@ -1,16 +1,17 @@
 <script lang="ts">
 	import type { Post } from '$lib/domain/Post';
-	import CodeMirror from 'svelte-codemirror-editor';
 	import { markdown } from '@codemirror/lang-markdown';
+	import CodeMirror from 'svelte-codemirror-editor';
 
 	export let post: Post | undefined = undefined;
 
+	let draft = post
+		? { ...post, published: post.published.toISOString().split('.')[0] }
+		: { title: '', content: '', published: '' };
+
 	$: hasPost = post != undefined;
 	$: defaultAction = hasPost ? '?/update' : undefined;
-	$: value = post?.content ?? ''
 </script>
-
-
 
 <form method="post">
 	{#if hasPost}
@@ -27,7 +28,7 @@
 					type="text"
 					name="title"
 					placeholder="Enter post title..."
-					value={post?.title ?? ''}
+					bind:value={draft.title}
 				/>
 			</label>
 			<label>
@@ -37,29 +38,28 @@
 					type="datetime-local"
 					name="published"
 					placeholder="YYYY-MM-DD HH:MM"
-					value={post?.published.toISOString().split('.')[0] ?? ''}
+					value={draft.published}
 				/>
 			</label>
 		</div>
 		<label>
 			Content:
-			<textarea
-				name="content"
-				bind:value
-				style:display="none"
+			<textarea name="content" bind:value={draft.content} style:display="none" />
+
+			<CodeMirror
+				bind:value={draft.content}
+				lang={markdown()}
+				lineWrapping
+				styles={{
+					'&': {
+						width: '100%',
+						height: '15rem',
+						border: 'thin solid var(--form-element-border-color)',
+						borderRadius: 'var(--border-radius)',
+						overflow: 'hidden'
+					}
+				}}
 			/>
-
-			
-			<CodeMirror bind:value lang={markdown()} lineWrapping styles={{
-				"&": {
-					width: "100%",
-					height: "15rem",
-					border: "thin solid var(--form-element-border-color)",
-					borderRadius: "var(--border-radius)",
-					overflow: "hidden"
-				},
-			}}/>
-
 		</label>
 		<footer>
 			<div class="actions-right">

@@ -3,8 +3,7 @@ import type { KVNamespace } from '@miniflare/kv';
 import { Post, ProspectivePost } from '../domain/Post';
 import { PostNotFoundError } from './errors/PostNotFoundError';
 
-let postsDb = new Array<Post>();
-
+const API_URL = 'http://localhost:3000/posts';
 export interface PostService {
 	create(prospectivePost: ProspectivePost): Promise<Post>;
 	remove(id: string): Promise<void>;
@@ -63,7 +62,7 @@ class ProductionPostService implements PostService {
 
 		return updatedPost;
 	}
-	
+
 	async list(): Promise<Post[]> {
 		const keysList = await this.#kv.list();
 
@@ -88,33 +87,66 @@ class ProductionPostService implements PostService {
 }
 
 class DevelopmentPostService implements PostService {
-	get(id: string): Promise<Post> {
-		const maybeFoundPost = postsDb.find((post) => post.id === id);
-		if (maybeFoundPost == null) {
+	async get(id: string): Promise<Post> {
+		const response = await fetch(`${API_URL}/${id}`);
+
+		if (response.status === 404) {
 			throw new PostNotFoundError(id);
 		}
-		return Promise.resolve(maybeFoundPost);
+
+		const post = await response.json();
+		return Post.parse(post);
 	}
-	create(prospectivePost: ProspectivePost): Promise<Post> {
+
+	async create(prospectivePost: ProspectivePost): Promise<Post> {
 		const post = {
 			...prospectivePost,
 			excerpt: prospectivePost.content.substring(0, 100),
 			id: crypto.randomUUID()
 		};
-		postsDb.push(post);
-		return Promise.resolve(post);
+
+		const response = await fetch(`${API_URL}`, {
+			method: 'post',
+			body: JSON.stringify(post),
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+
+		const result = await response.json();
+		console.log({ result });
+
+		return result;
 	}
-	remove(id: string): Promise<void> {
-		postsDb = postsDb.filter((post) => post.id !== id);
-		return Promise.resolve();
+
+	async remove(id: string): Promise<void> {
+		const response = await fetch(`${API_URL}/${id}`, {
+			method: 'delete'
+		});
+
+		if (response.status === 404) {
+			throw new PostNotFoundError(id);
+		}
 	}
+
 	async update(id: string, updates: Partial<ProspectivePost>): Promise<Post> {
-		const maybeFoundPost = await this.get(id);
-		Object.assign(maybeFoundPost, updates);
-		return maybeFoundPost;
+		const post = await this.get(id);
+
+		const response = await fetch(`${API_URL}/${id}`, {
+			method: 'put',
+			body: JSON.stringify({ ...post, ...updates }),
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+
+		return response.json();
 	}
-	list(): Promise<Post[]> {
-		return Promise.resolve(postsDb.sort(byPublishedDesc));
+
+	async list(): Promise<Post[]> {
+		const response = await fetch(`${API_URL}`);
+		const posts = await response.json();
+		return posts.map(Post.parse).sort(byPublishedDesc);
 	}
 }
 

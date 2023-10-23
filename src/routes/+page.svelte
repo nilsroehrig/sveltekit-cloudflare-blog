@@ -1,29 +1,59 @@
 <script>
-    export let data;
+	export let data;
 </script>
 
-{#each data.posts as post (post.id)}
-    <article>
-        <header>
-            <strong>{post.title}</strong>
-            <small><date>{post.published.toLocaleString("en-UK")}</date></small>
-        </header>
-        <p>{post.excerpt}</p>
-    </article>
+{#if data.posts.length}
+	<div class="articles">
+		{#each data.posts as post (post.id)}
+			<a href="/posts/{post.id}" class="article-card">
+				<article>
+					<strong>{post.title}</strong>
+					<span
+						>Published on <date>{post.published.toLocaleString('en-UK')}</date> by {post.author}</span
+					>
+				</article>
+			</a>
+		{/each}
+	</div>
 {:else}
-    <article>
-        <p>No posts yet.</p>
-    </article>
-{/each}
+	<article>
+		<p>No posts yet.</p>
+	</article>
+{/if}
 
 <style>
-    article > :last-child {
-        margin-bottom: 0;
+	article > :last-child {
+		margin-bottom: 0;
+	}
+
+    .articles {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        align-items: stretch;
+        gap: 1rem;
+        margin-top: 2rem;
     }
 
-    header {
+	.article-card {
+		color: inherit;
+        
+	}
+
+    .article-card article {
         display: flex;
+        flex-direction: column;
         justify-content: space-between;
-        align-items: baseline;
+        margin: 0;
+        height: 100%;
     }
+
+	.article-card strong {
+		font-size: 2rem;
+		display: block;
+	}
+
+	.article-card span {
+		display: block;
+		margin-top: 1rem;
+	}
 </style>

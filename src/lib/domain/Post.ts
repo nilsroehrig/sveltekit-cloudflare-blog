@@ -12,6 +12,5 @@ export const ProspectivePost = z.object({
 export type ProspectivePost = z.infer<typeof ProspectivePost>;
 export const Post = ProspectivePost.extend({
     id: z.string(),
-    excerpt: z.string()
 });
 export type Post = z.infer<typeof Post>;
