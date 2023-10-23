@@ -31,44 +31,56 @@ class ProductionPostService implements PostService {
 
 	async create(prospectivePost: ProspectivePost): Promise<Post> {
 		const id = crypto.randomUUID();
-		const post = {
+		const post = Post.parse({
 			...prospectivePost,
-			excerpt: prospectivePost.content.substring(0, 100)
-		};
+			excerpt: prospectivePost.content.substring(0, 100),
+			id
+		});
 
 		await this.#kv.put(id, JSON.stringify(post));
 
-		console.log({...post, id})
-
-		return Post.parse({
-			...post,
-			id
-		});
+		return post;
 	}
+
 	remove(id: string): Promise<void> {
 		return this.#kv.delete(id);
 	}
+
 	async update(id: string, updates: Partial<ProspectivePost>): Promise<Post> {
 		const originalPost = await this.#kv.get<Post>(id, { type: 'json' });
+
+		if (originalPost == null) {
+			throw new PostNotFoundError(id);
+		}
+
 		const updatedPost = {
 			...originalPost,
-			...updates
+			...updates,
+			id
 		};
+
 		await this.#kv.put(id, JSON.stringify(updatedPost));
-		return Post.parse({ ...updatedPost, id: id });
+
+		return updatedPost;
 	}
+	
 	async list(): Promise<Post[]> {
-		const list = await this.#kv.list();
+		const keysList = await this.#kv.list();
+
 		const allPosts = await Promise.all(
-			list.keys.map((key) => this.#kv.get<Partial<Post>>(key.name, { type: 'json' }))
+			keysList.keys.map((key) => this.#kv.get<Partial<Post>>(key.name, { type: 'json' }))
 		);
 
 		return allPosts
 			.reduce((acc, post) => {
 				const parseResult = Post.safeParse(post);
+
 				if (parseResult.success) {
 					acc.push(parseResult.data);
+				} else {
+					console.error(parseResult.error);
 				}
+
 				return acc;
 			}, new Array<Post>())
 			.sort(byPublishedDesc);
@@ -114,8 +126,6 @@ export function createPostService(platform?: App.Platform): PostService {
 	if (dev) {
 		return new DevelopmentPostService();
 	}
-
-	console.log(platform?.env.BLOG_POSTS)
 
 	return new ProductionPostService(platform?.env.BLOG_POSTS as KVNamespace);
 }
