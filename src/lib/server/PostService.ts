@@ -25,7 +25,7 @@ class ProductionPostService implements PostService {
 			throw new PostNotFoundError(id);
 		}
 
-		return Post.parse({ post });
+		return Post.parse(post);
 	}
 
 	async create(prospectivePost: ProspectivePost): Promise<Post> {
