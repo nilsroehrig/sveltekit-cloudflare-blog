@@ -5,7 +5,15 @@ declare global {
 		// interface Error {}
 		// interface Locals {}
 		// interface PageData {}
-		// interface Platform {}
+		interface Platform {
+			env: {
+				BLOG_POSTS?: KVNamespace;
+				AUTH_SECRET: string,
+				GITHUB_SECRET: string,
+				GITHUB_ID: string,
+				ALLOWED_USERS: string
+			};
+		}
 	}
 }
 
