@@ -1,7 +1,8 @@
 import type { KVNamespace } from '@miniflare/kv';
 import { PostNotFoundError } from './errors/PostNotFoundError';
 import { ProspectivePost, Post } from '../domain/ProspectivePost';
-import postsDb from './dev/posts.db';
+
+let postsDb = new Array<Post>();
 
 export interface PostService {
 	create(prospectivePost: ProspectivePost): Promise<Post>;
@@ -70,12 +71,8 @@ class ProductionPostService implements PostService {
 }
 
 class DevelopmentPostService implements PostService {
-	#posts: Post[];
-	constructor(posts: Post[] = postsDb) {
-		this.#posts = posts;
-	}
 	get(id: string): Promise<Post> {
-		const maybeFoundPost = this.#posts.find((post) => post.id === id);
+		const maybeFoundPost = postsDb.find((post) => post.id === id);
 		if (maybeFoundPost == null) {
 			throw new PostNotFoundError(id);
 		}
@@ -87,11 +84,11 @@ class DevelopmentPostService implements PostService {
 			excerpt: prospectivePost.content.substring(0, 100),
 			id: crypto.randomUUID()
 		};
-		this.#posts.push(post);
+		postsDb.push(post);
 		return Promise.resolve(post);
 	}
 	remove(id: string): Promise<void> {
-		this.#posts = this.#posts.filter((post) => post.id !== id);
+		postsDb = postsDb.filter((post) => post.id !== id);
 		return Promise.resolve();
 	}
 	async update(id: string, updates: Partial<ProspectivePost>): Promise<Post> {
@@ -100,7 +97,7 @@ class DevelopmentPostService implements PostService {
 		return maybeFoundPost;
 	}
 	list(): Promise<Post[]> {
-		return Promise.resolve(this.#posts);
+		return Promise.resolve(postsDb);
 	}
 }
 
