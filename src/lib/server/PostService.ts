@@ -1,6 +1,7 @@
+import { dev } from '$app/environment';
 import type { KVNamespace } from '@miniflare/kv';
+import { Post, ProspectivePost } from '../domain/Post';
 import { PostNotFoundError } from './errors/PostNotFoundError';
-import { ProspectivePost, Post } from '../domain/Post';
 
 let postsDb = new Array<Post>();
 
@@ -37,6 +38,8 @@ class ProductionPostService implements PostService {
 
 		await this.#kv.put(id, JSON.stringify(post));
 
+		console.log({...post, id})
+
 		return Post.parse({
 			...post,
 			id
@@ -60,13 +63,15 @@ class ProductionPostService implements PostService {
 			list.keys.map((key) => this.#kv.get<Partial<Post>>(key.name, { type: 'json' }))
 		);
 
-		return allPosts.reduce((acc, post) => {
-			const parseResult = Post.safeParse(post);
-			if (parseResult.success) {
-				acc.push(parseResult.data);
-			}
-			return acc;
-		}, new Array<Post>()).sort(byPublishedDesc);
+		return allPosts
+			.reduce((acc, post) => {
+				const parseResult = Post.safeParse(post);
+				if (parseResult.success) {
+					acc.push(parseResult.data);
+				}
+				return acc;
+			}, new Array<Post>())
+			.sort(byPublishedDesc);
 	}
 }
 
@@ -92,7 +97,7 @@ class DevelopmentPostService implements PostService {
 		return Promise.resolve();
 	}
 	async update(id: string, updates: Partial<ProspectivePost>): Promise<Post> {
-		const maybeFoundPost = await this.get(id)
+		const maybeFoundPost = await this.get(id);
 		Object.assign(maybeFoundPost, updates);
 		return maybeFoundPost;
 	}
@@ -101,14 +106,16 @@ class DevelopmentPostService implements PostService {
 	}
 }
 
-export function createPostService(platform?: App.Platform): PostService {
-	if (platform?.env.BLOG_POSTS) {
-		return new ProductionPostService(platform?.env.BLOG_POSTS);
-	} else {
-		return new DevelopmentPostService();
-	}
-}
-
 function byPublishedDesc(a: Post, b: Post) {
 	return b.published.valueOf() - a.published.valueOf();
+}
+
+export function createPostService(platform?: App.Platform): PostService {
+	if (dev) {
+		return new DevelopmentPostService();
+	}
+
+	console.log(platform?.env.BLOG_POSTS)
+
+	return new ProductionPostService(platform?.env.BLOG_POSTS as KVNamespace);
 }
