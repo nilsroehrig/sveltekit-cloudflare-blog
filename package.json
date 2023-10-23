@@ -34,8 +34,11 @@
 	"dependencies": {
 		"@auth/core": "^0.17.0",
 		"@auth/sveltekit": "^0.3.10",
+		"@codemirror/lang-markdown": "^6.2.2",
 		"@miniflare/kv": "^2.14.1",
 		"@picocss/pico": "^1.5.10",
+		"marked": "^9.1.2",
+		"svelte-codemirror-editor": "^1.1.0",
 		"zod": "^3.22.4"
 	}
 }

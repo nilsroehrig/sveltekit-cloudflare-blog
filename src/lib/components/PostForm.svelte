@@ -1,10 +1,16 @@
 <script lang="ts">
 	import type { Post } from '$lib/domain/Post';
+	import CodeMirror from 'svelte-codemirror-editor';
+	import { markdown } from '@codemirror/lang-markdown';
 
 	export let post: Post | undefined = undefined;
+
 	$: hasPost = post != undefined;
-    $: defaultAction = hasPost ? "?/update" : undefined
+	$: defaultAction = hasPost ? '?/update' : undefined;
+	$: value = post?.content ?? ''
 </script>
+
+
 
 <form method="post">
 	{#if hasPost}
@@ -39,10 +45,21 @@
 			Content:
 			<textarea
 				name="content"
-				placeholder="Enter post content..."
-				rows="8"
-				value={post?.content ?? ''}
+				bind:value
+				style:display="none"
 			/>
+
+			
+			<CodeMirror bind:value lang={markdown()} lineWrapping styles={{
+				"&": {
+					width: "100%",
+					height: "15rem",
+					border: "thin solid var(--form-element-border-color)",
+					borderRadius: "var(--border-radius)",
+					overflow: "hidden"
+				},
+			}}/>
+
 		</label>
 		<footer>
 			<div class="actions-right">
