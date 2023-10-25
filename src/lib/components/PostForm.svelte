@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { enhance } from '$app/forms';
 	import type { Post } from '$lib/domain/Post';
 	import { markdown } from '@codemirror/lang-markdown';
 	import CodeMirror from 'svelte-codemirror-editor';
@@ -13,7 +14,7 @@
 	$: defaultAction = hasPost ? '?/update' : undefined;
 </script>
 
-<form method="post">
+<form method="post" use:enhance>
 	{#if hasPost}
 		<input type="hidden" name="id" value={post?.id} />
 	{/if}
