@@ -2,11 +2,11 @@
 	"name": "sveltekit-cloudflare-blog",
 	"version": "0.0.1",
 	"private": true,
+	"license": "MIT",
 	"scripts": {
 		"dev": "npx concurrently \"npm run vite\" \"npm run server\"",
 		"vite": "vite dev",
 		"build": "vite build",
-		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"lint": "prettier --plugin-search-dir . --check . && eslint .",

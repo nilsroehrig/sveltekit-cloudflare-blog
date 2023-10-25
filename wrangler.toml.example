@@ -1,0 +1,3 @@
+kv_namespaces = [
+  { binding = "BLOG_POSTS", id = "<<KV NAMESPACE ID HERE>>" }
+]

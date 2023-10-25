@@ -28,11 +28,17 @@
 
     .articles {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr;
         align-items: stretch;
         gap: 1rem;
         margin-top: 2rem;
     }
+
+	@media screen and (min-width: 768px) {
+		.articles {
+			grid-template-columns: 1fr 1fr;
+		}
+	}
 
 	.article-card {
 		color: inherit;

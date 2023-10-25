@@ -4,6 +4,10 @@
 	import '@picocss/pico';
 </script>
 
+<svelte:head>
+	<title>SvelteKit-Cloudflare-Blog</title>
+</svelte:head>
+
 <header class="container">
 	<nav>
 		<ul><li><strong>SvelteKit-Cloudflare-Blog</strong></li></ul>

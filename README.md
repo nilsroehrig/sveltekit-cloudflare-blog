@@ -1,38 +1,26 @@
-# create-svelte
+# SvelteKit-Cloudflare-Blog
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
-
-## Creating a project
-
-If you're seeing this, you've probably already done this step. Congrats!
-
-```bash
-# create a new project in the current directory
-npm create svelte@latest
-
-# create a new project in my-app
-npm create svelte@latest my-app
-```
+This is the accompanying repository for my talk ["Edge Computing For Frontend Web Development"](https://slides.com/nilsroehrig/edge-computing-for-frontend-web-development-ijs-munich-2023). The live app can be found at https://sveltekit-cloudflare-blog.pages.dev/.
 
 ## Developing
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+Once you've checked out the repository and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
 
 ```bash
 npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
 ```
 
-## Building
+## Preview
 
-To create a production version of your app:
+The project is configured to be run on Cloudflare Pages. You can run a local preview by running the wrangle script:
 
 ```bash
-npm run build
+npm run wrangle
 ```
 
-You can preview the production build with `npm run preview`.
+> [!NOTE]
+> Please be aware, that it is necessary to configure the app accordingly:
+> - `wrangler.toml` must specify your KV namespace id for the binding. Refer to [`wrangler.toml.example`](./wrangler.toml.example).
+> - `.env.local` must specify your Github app credentials and a comma-separated list of permitted email addresses. Refer to [`.env.example`](./.env.example).
 
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+Please refer to the [Auth.js documentation](https://authjs.dev/getting-started/oauth-tutorial?frameworks=sveltekit) on how to setup an OAuth app in GitHub. If you want to deploy the project to Cloudflare yourself, you can follow my [Guide](https://nilsroehrig.github.io/sveltekit/cloudflare/edge/2022/09/09/setting-up-cloudflare-pages-with-sveltekit.html) or the official SvelteKit and Cloudflare Pages documentation.
